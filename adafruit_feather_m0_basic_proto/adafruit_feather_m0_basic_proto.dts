@@ -44,10 +44,6 @@
 			gpios = <&porta 16 0>;
 			label = "GREEN_LED";
 		};
-		led3: led_3 {
-			gpios = <&porta 17 0>;
-			label = "LED";
-		};
 	};
 };
 
@@ -80,20 +76,6 @@
 	clock-frequency = <I2C_BITRATE_FAST>;
 	#address-cells = <1>;
 	#size-cells = <0>;
-	
-	lsm303agr-magn@1e {
-		compatible = "st,lis2mdl", "st,lsm303agr-magn";
-		status = "okay";
-		reg = <0x1e>;
-		label = "LSM303AGR-MAGN";
-	};
-
-	lsm303agr-accel@19 {
-		compatible = "st,lis2dh", "st,lsm303agr-accel";
-		status = "okay";
-		reg = <0x19>;
-		label = "LSM303AGR-ACCEL";
-	};
 };
 
 &sercom4 {
