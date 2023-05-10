@@ -10,12 +10,10 @@
 
 // #include <stdio.h>
 
-// #define I2C_ADDR_MIN 0x08 // Adresse minimale à scanner
-// #define I2C_ADDR_MAX 0x77 // Adresse maximale à scanner
-// //#define GPS_ADR 0x42
-// //#define BUFFER_SIZE 256
+// #define GPS_ADR 0x42
+// #define BUFFER_SIZE 256
 
-// // The devicetree node identifier for the "led0" alias.
+// //The devicetree node identifier for the "led0" alias.
 // #define GPS_NODE DT_ALIAS(gps)
 
 
@@ -24,7 +22,7 @@
 // #define PIN	    DT_GPIO_PIN(GPS_NODE, gpios)
 // #define FLAGS	DT_GPIO_FLAGS(GPS_NODE, gpios)
 // #else
-// // A build error here means your board isn't set up to blink an LED.
+// //A build error here means your board isn't set up to blink an LED.
 // #error "Unsupported board: led0 devicetree alias is not defined"
 // #define GPS	""
 // #define PIN	18
@@ -35,11 +33,11 @@
 
 
 
-// // uint32_t i2c_cfg = I2C_SPEED_SET(I2C_SPEED_FAST) | I2C_MODE_MASTER;
+// uint32_t i2c_cfg = I2C_SPEED_SET(I2C_SPEED_FAST) | I2C_MODE_MASTER;
 
 // void main(void)
 // {
-// 	// Activer broche 18
+// 	//Activer broche 18
 // 	const struct device * gps_dev;
 // 	int ret;
 
@@ -63,74 +61,60 @@
 //     k_sleep(K_MSEC(5000));
 
 
-// // 	const char * res4 = DT_PROP(DT_ALIAS(gps), label);
-// // 	printk("label ? %s\n", res4);
+// 	const char * res4 = DT_PROP(DT_ALIAS(gps), label);
+// 	printk("label ? %s\n", res4);
 
-// // 	// Ouvrir l'I2C
-// // 	const struct device *i2c_dev = DEVICE_DT_GET(DT_NODELABEL(sercom3));
-
-
-// // 	if (i2c_dev == NULL) {
-// //   		printk("Failed to get I2C device binding.\n");
-// // 	}
+// 	// Ouvrir l'I2C
+// 	const struct device *i2c_dev = DEVICE_DT_GET(DT_NODELABEL(sercom3));
 
 
-// // 	if(!device_is_ready(i2c_dev)){
-// // 		printk("I2C bus %s is not ready !\n\r", i2c_dev->name);
-// // 	}
-// // 	printk("I2C bus %s is ready !\n\r", i2c_dev->name);
+// 	if (i2c_dev == NULL) {
+//   		printk("Failed to get I2C device binding.\n");
+// 	}
 
 
-
-
-// // 	ret = i2c_configure(i2c_dev, i2c_cfg);
-// //     if (ret != 0) {
-// //         printk("Failed to configure I2C device : %d\n", ret);
-// //         return;
-// //     }
-// // 	printk("Configure I2C device : %d\n", ret);
+// 	if(!device_is_ready(i2c_dev)){
+// 		printk("I2C bus %s is not ready !\n\r", i2c_dev->name);
+// 	}
+// 	printk("I2C bus %s is ready !\n\r", i2c_dev->name);
 
 
 
-// // 	unsigned char datas[6];
+
+// 	ret = i2c_configure(i2c_dev, i2c_cfg);
+//     if (ret != 0) {
+//         printk("Failed to configure I2C device : %d\n", ret);
+//         return;
+//     }
+// 	printk("Configure I2C device : %d\n", ret);
+
+
+
+// 	uint8_t gps_cmd[] = "$GPRMC,1*04\r\n"; // Commande pour demander une trame GPRMC
+// 	struct i2c_msg msg[2];
+// 	uint8_t rx_buf[128]; // Buffer pour stocker les données lues du GPS
+
+// 	msg[0].flags = I2C_MSG_WRITE;
+// 	msg[0].len = sizeof(gps_cmd);
+// 	msg[0].buf = gps_cmd;
+
+// 	msg[1].flags = I2C_MSG_READ | I2C_MSG_STOP;
+// 	msg[1].len = sizeof(rx_buf);
+// 	msg[1].buf = rx_buf;
+
+// 	ret = i2c_transfer(i2c_dev, msg, 2, 0x42);
+// 	if (ret == 0) {
+//     	// Analyser les données reçues du GPS
+// 		for (int i = 0; i < sizeof(gps_cmd); i++) {
+//     		printk("Received byte %d: 0x%02x\n", i, gps_cmd[i]);
+// 		}
+// 	}else {
+// 		 printk("Failed to configure I2C device : %d\n", ret);
+// 	}
 
 	
 
-// // 	datas[0] = 0x01;
-// // 	datas[1] = 0x20;
-
-// // 	/* 3. verify i2c_write() */
-// // 	if (i2c_write(i2c_dev, datas, 2, GPS_ADR)) {
-// // 		printk("Fail to configure sensor GY271\n");
-// // 		return;
-// // 	}
-
-// // 	datas[0] = 0x02;
-// // 	datas[1] = 0x00;
-// // 	if (i2c_write(i2c_dev, datas, 2, GPS_ADR)) {
-// // 		printk("Fail to configure sensor GY271\n");
-// // 		return;
-// // 	}
-
-// // 	k_sleep(K_MSEC(1));
-
-// // 	datas[0] = 0x03;
-// // 	if (i2c_write(i2c_dev, datas, 1, GPS_ADR)) {
-// // 		printk("Fail to write to sensor GY271\n");
-// // 		return;
-// // 	}
-
-// // 	(void)memset(datas, 0, sizeof(datas));
-
-// // 	/* 4. verify i2c_read() */
-// // 	if (i2c_read(i2c_dev, datas, 6, GPS_ADR)) {
-// // 		printk("Fail to fetch sample from sensor GY271\n");
-// // 		return;
-// // 	}
-
-// // 	printk("axis raw data: %d %d %d %d %d %d\n",
-// // 				datas[0], datas[1], datas[2],
-// // 				datas[3], datas[4], datas[5]);
 
 
-// // }
+
+// }
