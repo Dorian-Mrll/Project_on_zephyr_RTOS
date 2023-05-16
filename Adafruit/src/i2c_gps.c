@@ -1,15 +1,4 @@
-#include <zephyr.h>
-#include <device.h>
-#include <devicetree.h>
-
-#include <drivers/gpio.h>
-#include <drivers/uart.h>
-#include <drivers/i2c.h>
-
-
-#include <stdio.h>
-#include <string.h>
-
+#include "command.h"
 
 // The devicetree node identifier for the "led0" alias.
 #define GPS_NODE DT_ALIAS(gps)
@@ -34,7 +23,7 @@ void main(void)
     int ret;
 
 	// Activer broche 18
-	const struct device * gps_dev;
+	/*const struct device * gps_dev;
 
 	gps_dev = device_get_binding(GPS);
 	if (gps_dev == NULL) {
@@ -48,16 +37,20 @@ void main(void)
 	if (ret != 0) {
   		printk("Failed to configure GPS device binding.\n");
 	}
-    k_sleep(K_MSEC(1000));
+    k_sleep(K_MSEC(1000));*/
 
 
 
-    const struct device *i2c_dev = DEVICE_DT_GET(DT_NODELABEL(sercom3));
+    test_device(i2c_dev);
 
-    if (!i2c_dev) {
-        printf("Impossible d'ouvrir le périphérique I2C.\n");
-        return;
-    }
+    gpio_pin_configure(power_enable_eva.port, power_enable_eva.pin, GPIO_OUTPUT_ACTIVE);
+    k_sleep(K_MSEC(500));
+
+
+    
+
+  
+
 
 
     ret = i2c_configure(i2c_dev, I2C_SPEED_SET(I2C_SPEED_FAST) | I2C_MODE_MASTER);
