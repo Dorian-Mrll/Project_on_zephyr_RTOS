@@ -1,59 +1,32 @@
 #include "command.h"
 
-// The devicetree node identifier for the "led0" alias.
-#define GPS_NODE DT_ALIAS(gps)
-
-#if DT_NODE_HAS_STATUS(GPS_NODE, okay)
-#define GPS		DT_GPIO_LABEL(GPS_NODE, gpios)
-#define PIN	    DT_GPIO_PIN(GPS_NODE, gpios)
-#define FLAGS	DT_GPIO_FLAGS(GPS_NODE, gpios)
-#else
-// A build error here means your board isn't set up to blink an LED.
-#error "Unsupported board: led0 devicetree alias is not defined"
-#define GPS	""
-#define PIN	18
-#define FLAG GPIO_OUTPUT_ACTIVE
-#endif
 
 
-#define GPS_ADR 0x42
+
+#define SOC_NODE DT_NODELABEL(sercom3)
+#define GPS_ADR DT_REG_ADDR(DT_CHILD(SOC_NODE, eva8m_42))
+
+
+#define I2C_SPEED DT_PROP(SOC_NODE, clock_frequency)
+
+
 
 void main(void)
 {
     int ret;
-
-	// Activer broche 18
-	/*const struct device * gps_dev;
-
-	gps_dev = device_get_binding(GPS);
-	if (gps_dev == NULL) {
-  		printk("Failed to get GPS device binding.\n");
-	}
-	ret = gpio_pin_configure(gps_dev, PIN, GPIO_OUTPUT_ACTIVE | FLAGS);
-	if (ret != 0) {
-  		printk("Failed to configure GPS device binding.\n");
-	}
-	ret = gpio_pin_set(gps_dev, PIN, true);
-	if (ret != 0) {
-  		printk("Failed to configure GPS device binding.\n");
-	}
-    k_sleep(K_MSEC(1000));*/
+    const struct gpio_dt_spec power_enable_eva = GPIO_DT_SPEC_GET(DT_CHILD(DT_NODELABEL(sercom3), eva8m_42), gps_power_gpios);
+    
 
 
-
-    test_device(i2c_dev);
+    //test_device(i2c_dev);
 
     gpio_pin_configure(power_enable_eva.port, power_enable_eva.pin, GPIO_OUTPUT_ACTIVE);
     k_sleep(K_MSEC(500));
 
 
     
-
-  
-
-
-
-    ret = i2c_configure(i2c_dev, I2C_SPEED_SET(I2C_SPEED_FAST) | I2C_MODE_MASTER);
+    //I2C_SPEED_FAST
+    ret = i2c_configure(i2c_dev, I2C_SPEED_SET(I2C_SPEED) | I2C_MODE_MASTER);
     if (ret < 0) {
         printk("Error configuring I2C: %d\n", ret);
         return;
@@ -61,6 +34,12 @@ void main(void)
 
     
     k_sleep(K_MSEC(5000));
+
+
+
+
+
+
 
 
     ret = i2c_write(i2c_dev, (uint8_t)0xFD, 1, GPS_ADR);
@@ -78,6 +57,8 @@ void main(void)
     }
 
     
+
+
 
 
 
