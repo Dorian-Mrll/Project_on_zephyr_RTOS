@@ -27,9 +27,7 @@
 		led0 = &led0;
 		led1 = &led1;
 		led2 = &led2;
-		gps = &gps;
-		saraenable = &saraenable;
-		saratoggle = &saratoggle;
+		other = &other;
 	};
 
 	leds {
@@ -46,18 +44,10 @@
 			gpios = <&porta 16 0>;
 			label = "GREEN_LED";
 		};
-		gps: gps {
-			gpios = <&porta 18 GPIO_ACTIVE_HIGH>;
-			gpio-output = <1>;
-			label = "GPS";
-		};
-		saraenable: saraenable {
-			gpios = <&porta 4 0>;
-			label = "saraenable";
-		};
-		saratoggle: saratoggle {
-			gpios = <&portb 10 0>;
-			label = "saratoggle";
+		
+		other: other {
+			gpios = <&porta 2 0, &porta 3 0>;
+			label = "OTHER_GPIO";
 		};
 	};
 };
@@ -75,14 +65,14 @@
 
 	pinctrl-0 = <&pa13c_sercom2_pad1 &pa12c_sercom2_pad0>;
 	
-	/*sara_r4 {
+	sara_r4 {
+		status = "okay";
 		compatible = "u-blox,sara-r4";
 		label = "ublox-sara-r4";
-		status = "okay";
 
-		mdm-power-gpios = <&portb 10 0>;
-		mdm-vint-gpios = <&porta 4 0>;
-	};*/
+		mdm-power-gpios = <&porta 4 GPIO_ACTIVE_HIGH>;
+		mdm-vint-gpios = <&portb 10 0>;
+	};
 };
 
 &sercom3 {
@@ -92,11 +82,14 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	/*eva8m@42 {
-		compatible = "ublox,eva8m";
+	eva8m@42 {
+		status = "okay";
+		compatible = "u-blox,eva-8m";
 		reg = <0x42>;
-		label = "EVA8M";
-	};*/
+		label = "ublox-eva-8m";
+		
+		gps-power-gpios = <&porta 18 GPIO_ACTIVE_HIGH>;
+	};
 	
 	/*lsm303dlhc-magn@1e {
 		compatible = "st,lsm303dlhc-magn";
