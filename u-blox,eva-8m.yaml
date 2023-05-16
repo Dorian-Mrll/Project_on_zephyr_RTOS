@@ -1,0 +1,16 @@
+# Copyright (c) 2019, Foundries.io
+# SPDX-License-Identifier: Apache-2.0
+
+description: u-blox EVA-8M gps
+
+compatible: "u-blox,eva-8m"
+
+include: i2c-device.yaml
+
+properties:
+    label:
+      required: true
+
+    gps-power-gpios:
+      type: phandle-array
+      required: true
