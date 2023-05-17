@@ -46,7 +46,31 @@
 		};
 		
 		other: other {
-			gpios = <&porta 2 0, &porta 3 0>;
+			gpios = <&porta 2 0>,
+					<&porta 3 0>,
+					<&porta 5 0>,
+					<&porta 6 0>,
+					<&porta 7 0>,
+					<&porta 8 0>,
+					<&porta 9 0>,
+					<&porta 10 0>,
+					<&porta 11 0>,
+					<&portb 8 0>,
+					<&portb 9 0>,
+					
+					<&porta 19 0>,
+					<&porta 20 0>,
+					<&porta 21 0>,
+					
+					<&porta 25 0>,
+					<&porta 24 0>,
+
+					<&portb 22 0>,
+					<&portb 23 0>,
+					<&porta 28 0>,
+					<&portb 11 0>;
+
+
 			label = "OTHER_GPIO";
 		};
 	};
