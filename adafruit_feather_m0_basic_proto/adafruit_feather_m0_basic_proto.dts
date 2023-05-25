@@ -20,6 +20,7 @@
 		zephyr,sram = &sram0;
 		zephyr,flash = &flash0;
 		zephyr,code-partition = &code_partition;
+		//zephyr,display = &ssd16xx;
 	};
 
 	/* These aliases are provided for compatibility with samples */
@@ -27,8 +28,41 @@
 		led0 = &led0;
 		led1 = &led1;
 		led2 = &led2;
+		cs = &cs;
+		/*dc-gpios = &dc-gpios;
+		srcs = &srcs;
+		rst = &rst;
+		busy = &busy;*/
 		other = &other;
+		respin = "/epd_out/res";
+        cspin = "/epd_out/cs";
+        dcpin = "/epd_out/dc";
+        busypin = "/epd_in/busy";
 	};
+	
+	epd_out {
+        compatible = "gpio-leds"; 
+        res {
+            gpios = <&porta 3 GPIO_ACTIVE_HIGH>;
+            label = "EDP_RES";
+        };
+        cs {
+            gpios = <&porta 9 GPIO_ACTIVE_HIGH>;
+            label = "EDP_CS";
+        };
+        dc {
+            gpios = <&porta 7 GPIO_ACTIVE_HIGH>;
+            label = "EDP_DC";
+        };
+    };
+
+    epd_in {
+        compatible = "gpio-keys";
+        busy {
+            gpios = <&porta 2 GPIO_ACTIVE_HIGH>;
+            label = "EDP_BUSY";
+        };
+    };
 
 	leds {
 		compatible = "gpio-leds";
@@ -45,16 +79,41 @@
 			label = "GREEN_LED";
 		};
 		
+		cs: cs {
+			gpios = <&porta 9 GPIO_ACTIVE_LOW>;
+			label = "CS";
+		};
+		
+		/*dc-gpios: dc-gpios {
+			gpios = <&porta 7 0>;
+			label = "DC";
+		};
+		
+		srcs: srcs {
+			gpios = <&porta 6 0>;
+			label = "SRCS";
+		};
+		
+		rst: rst {
+			gpios = <&porta 3 0>;
+			label = "RST";
+		};
+		
+		busy: busy {
+			gpios = <&porta 2 0>;
+			label = "BUSY";
+		};*/
+		
 		other: other {
-			gpios = <&porta 2 0>,
-					<&porta 3 0>,
+			gpios = /*<&porta 2 0>,
+					<&porta 3 0>,*/
 					<&porta 5 0>,
-					<&porta 6 0>,
-					<&porta 7 0>,
-					<&porta 8 0>,
+					/*<&porta 6 0>,
+					<&porta 7 0>,*/
+					/*<&porta 8 0>,
 					<&porta 9 0>,
 					<&porta 10 0>,
-					<&porta 11 0>,
+					<&porta 11 0>,*/
 					<&portb 8 0>,
 					<&portb 9 0>,
 					
@@ -78,6 +137,34 @@
 
 &cpu0 {
 	clock-frequency = <48000000>;
+};
+
+&sercom0 {
+	status = "okay";
+	compatible = "atmel,sam0-spi";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	dipo = <0>;
+	dopo = <1>;
+	
+	/*ssd16xx: ssd16xxfb@0 {
+		status = "okay";
+		compatible = "solomon,ssd16xxfb";
+		label = "SSD16XX";
+		reg = <0>;
+		height = <122>;
+		width = <250>;
+		pp-height-bits = <8>;
+		pp-width-bits = <16>;
+		gdv = [ 17 ];
+		sdv = [ 41 00 32 ];
+		vcom = <0x36>;
+		border-waveform = <0x05>;
+		reset-gpios = <&porta 3 GPIO_ACTIVE_LOW>;
+		dc-gpios = <&porta 7 GPIO_ACTIVE_LOW>;
+		busy-gpios = <&porta 2 GPIO_ACTIVE_HIGH>;
+		spi-max-frequency = <4000000>;
+	};*/
 };
 
 &sercom2 {
@@ -130,14 +217,6 @@
 	};*/
 };
 
-&sercom4 {
-	status = "okay";
-	compatible = "atmel,sam0-spi";
-	#address-cells = <1>;
-	#size-cells = <0>;
-	dipo = <0>;
-	dopo = <1>;
-};
 
 &sercom5 {
 	status = "okay";
