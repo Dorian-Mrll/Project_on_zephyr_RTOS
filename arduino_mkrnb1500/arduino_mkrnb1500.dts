@@ -1,0 +1,188 @@
+/*
+ * Copyright (c) 2022 TOKITA Hiroshi <tokita.hiroshi@fujitsu.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+#include <atmel/samd21.dtsi>
+#include "arduino_mkrnb1500-pinctrl.dtsi"
+#include "arduino_mkr_connector.dtsi"
+
+/ {
+	model = "Arduino MKR NB 1500";
+	compatible = "arduino,mkrnb1500";
+
+	chosen {
+		//zephyr,console = &cdc_acm_uart0;
+		zephyr,console = &sercom5;
+		zephyr,shell-uart = &sercom5;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &code_partition;
+		zephyr,display = &eink;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		led0: led_0 {
+			gpios = <&porta 20 0>;
+			label = "LED";
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+		button0: button_0{
+			gpios = <&portb 2 0>;
+			label = "BACK";
+		};
+		button1: button_1{
+			gpios = <&portb 3 0>;
+			label = "NEXT";
+		};
+	};
+
+	aliases {
+		led0 = &led0;
+		sw0 = &button0;
+		sw1 = &button1;
+	};
+};
+
+&cpu0 {
+	clock-frequency = <48000000>;
+};
+
+&sercom0 {
+	status = "okay";
+	compatible = "atmel,sam0-i2c";
+	clock-frequency = <I2C_BITRATE_FAST>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	pinctrl-0 = <&sercom0_i2c_default>;
+	pinctrl-names = "default";
+
+	atecc508a@c0 {
+		compatible = "atmel,atecc508";
+		reg = <0xc0>;
+	};
+
+};
+
+&sercom1 {
+	status = "okay";
+	compatible = "atmel,sam0-spi";
+	dipo = <3>;
+	dopo = <0>;
+	
+	cs-gpios = <&porta 11 GPIO_ACTIVE_LOW>;
+	
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	pinctrl-0 = <&sercom1_spi_default>;
+	pinctrl-names = "default";
+	
+	eink: ssd16xxfb@0 {
+		compatible = "solomon,ssd16xxfb";
+		label = "SSD16XX";
+		spi-max-frequency = <4000000>;
+		reg = <0>;
+		width = <250>;
+		height = <130>;
+		orientation-flipped;
+		pp-width-bits = <8>;
+		pp-height-bits = <16>;
+        	dc-gpios = <&portb 10 GPIO_ACTIVE_LOW>;    // D4
+	        reset-gpios = <&porta 21 GPIO_ACTIVE_LOW>;    // D7
+        	busy-gpios = <&porta 20 GPIO_ACTIVE_HIGH>;    // D6
+        	
+        	//gdv = [17];
+        	//sdv = [41 00 32];
+        	//vcom = <0x36>;
+        	//border-waveform = <0x05>;
+        };
+};
+
+&sercom2 {
+	status = "okay";
+	compatible = "atmel,sam0-uart";
+	current-speed = <115200>;
+	rxpo = <1>;
+	txpo = <0>;
+
+	pinctrl-0 = <&sercom2_uart_default>;
+	pinctrl-names = "default";
+	
+	sara_r4 {
+		status = "okay";
+		compatible = "u-blox,sara-r4";
+		label = "ublox-sara-r4";
+
+		mdm-power-gpios = <&porta 28 0>;
+		mdm-reset-gpios = <&portb 8 0>;
+		//mdm-vint-gpios = <&portb 8 0>;
+	};	
+};
+
+&sercom5 {
+	status = "okay";
+	compatible = "atmel,sam0-uart";
+	current-speed = <115200>;
+	rxpo = <3>;
+	txpo = <1>;
+
+	pinctrl-0 = <&sercom5_uart_default>;
+	pinctrl-names = "default";
+};
+
+&dac0 {
+	status = "okay";
+
+	pinctrl-0 = <&dac_default>;
+	pinctrl-names = "default";
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "bootloader";
+			reg = <0x00000000 0x2000>;
+			read-only;
+		};
+
+		code_partition: partition@2000 {
+			label = "code";
+			reg = <0x2000 0x3A000>;
+			read-only;
+		};
+
+		/*
+		 * The final 16 KiB is reserved for the application.
+		 * Storage partition will be used by FCB/LittleFS/NVS
+		 * if enabled.
+		 */
+		storage_partition: partition@3c000 {
+			label = "storage";
+			reg = <0x0003c000 0x00004000>;
+		};
+	};
+};
+
+zephyr_udc0: &usb0 {
+	status = "okay";
+	
+	cdc_acm_uart0: cdc_acm_uart0 {
+	    	compatible = "zephyr,cdc-acm-uart";
+		label = "CDC_ACM_0";
+	};
+
+	pinctrl-0 = <&usb_dc_default>;
+	pinctrl-names = "default";
+};
